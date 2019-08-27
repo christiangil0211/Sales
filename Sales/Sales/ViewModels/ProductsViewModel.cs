@@ -12,10 +12,13 @@
 
     public class ProductsViewModel : BaseViewModel
     {
+        #region Attributes
         private bool isRefreshing;
         private ApiService apiService;
         private ObservableCollection<Product> products;
+        #endregion
 
+        #region Properties
         public ObservableCollection<Product> Products
         {
             get { return this.products; }
@@ -26,17 +29,36 @@
             get { return this.isRefreshing; }
             set { this.SetValue(ref this.isRefreshing, value); }
         }
+        #endregion
+
+        #region Constructor
         public ProductsViewModel()
         {
+            instance = this;
             apiService = new ApiService();
             this.LoadProducts();
         }
+        #endregion
+
+        #region Singleton
+        private static ProductsViewModel instance;
+
+        public static ProductsViewModel GetInstance()
+        {
+            if (instance == null)
+            {
+                return new ProductsViewModel();
+            }
+
+            return instance;
+        }
+
+        #endregion
+
+        #region Methods
         private async void LoadProducts()
         {
             var connection = await this.apiService.CheckConnection();
-
-            //var rul = Application.Current.Resources["UrlAPI"].ToString();
-
             if (!connection.IsSuccess)
             {
                 this.IsRefreshing = false;
@@ -70,12 +92,16 @@
             this.Products = new ObservableCollection<Product>(list);
             this.IsRefreshing = false;
         }
+        #endregion
+
+        #region Command
         public ICommand RefreshCommand
         {
             get
             {
                 return new RelayCommand(LoadProducts);
             }
-        }
+        } 
+        #endregion
     }
 }

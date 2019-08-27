@@ -153,4 +153,25 @@
   <data name="Save" xml:space="preserve">
     <value>Save</value>
   </data>
+  <data name="ChangeImage" xml:space="preserve">
+    <value>Touch the image to change</value>
+  </data>
+  <data name="DescriptionError" xml:space="preserve">
+    <value>You must enter a description</value>
+  </data>
+  <data name="PriceError" xml:space="preserve">
+    <value>You must enter a price greater than zero.</value>
+  </data>
+  <data name="ImageSource" xml:space="preserve">
+    <value>Where do you take the picture?</value>
+  </data>
+  <data name="FromGallery" xml:space="preserve">
+    <value>From Gallery</value>
+  </data>
+  <data name="NewPicture" xml:space="preserve">
+    <value>Take a new picture</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
 </root>

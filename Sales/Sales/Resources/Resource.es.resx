@@ -142,15 +142,36 @@
     <value>Escriba la descripción del producto</value>
   </data>
   <data name="Price" xml:space="preserve">
-    <value>Precio</value>
+    <value>Precio:</value>
   </data>
   <data name="PreciPlaceholder" xml:space="preserve">
     <value>Ingrese precio del producto</value>
   </data>
   <data name="Remarks" xml:space="preserve">
-    <value>Notas:</value>
+    <value>Comentarios:</value>
   </data>
   <data name="Save" xml:space="preserve">
     <value>Guardar</value>
+  </data>
+  <data name="ChangeImage" xml:space="preserve">
+    <value>¡Toca la imagen para cambiar!</value>
+  </data>
+  <data name="DescriptionError" xml:space="preserve">
+    <value>Debe escribir una descripción</value>
+  </data>
+  <data name="PriceError" xml:space="preserve">
+    <value>Debes introducir un precio mayor que cero.</value>
+  </data>
+  <data name="ImageSource" xml:space="preserve">
+    <value>¿Dónde tomas la foto?</value>
+  </data>
+  <data name="FromGallery" xml:space="preserve">
+    <value>De la galería</value>
+  </data>
+  <data name="NewPicture" xml:space="preserve">
+    <value>Tomar una nueva imagen</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancelar</value>
   </data>
 </root>

@@ -9,37 +9,78 @@
              BindingContext="{Binding Main, Source={StaticResource Locator}}"
              Title="{i18n:Translate AddProduct}">
     <ContentPage.Content>
-        <StackLayout
-            BindingContext="{Binding AddProduct}"
-            Padding="5">
-            <Label
-                Text="{i18n:Translate Description}">
-            </Label>
-            <Entry
-                Placeholder="{i18n:Translate DescriptionPlaceholder}">
-            </Entry>
-            <Label
-                Text="{i18n:Translate Price}">
-            </Label>
-            <Entry
-                Keyboard="Numeric"
-                Placeholder="{i18n:Translate PreciPlaceholder}">
-            </Entry>
-            <Label
-                Text="{i18n:Translate Remarks}">
-            </Label>
-            <Editor
-                VerticalOptions="FillAndExpand">
-            </Editor>
-            <ActivityIndicator>
-            </ActivityIndicator>
-            <Button
-                BackgroundColor="Navy"
-                BorderRadius="23"
-                HeightRequest="46"
-                Text="{i18n:Translate Save}"
-                TextColor="White">
-            </Button>
-        </StackLayout>
+        <ScrollView>
+            <StackLayout
+                BindingContext="{Binding AddProduct}"
+                Padding="5">
+                <Image
+                    HeightRequest="200"
+                    Source="{Binding ImageSource}"
+                    WidthRequest="200">
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer
+                            Command="{Binding ChangeImageCommand}"/>
+                    </Image.GestureRecognizers>
+                </Image>
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="Small"
+                    HorizontalOptions="Center"
+                    Text="{i18n:Translate ChangeImage}">
+                </Label>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label
+                        FontAttributes="Bold"
+                        Grid.Column="0"
+                        Grid.Row="0"
+                        Text="{i18n:Translate Description}"
+                        VerticalOptions="Center">
+                    </Label>
+                    <Entry
+                        Grid.Column="1"
+                        Grid.Row="0"
+                        Placeholder="{i18n:Translate DescriptionPlaceholder}"
+                        Text="{Binding Description}">
+                    </Entry>
+                    <Label
+                        FontAttributes="Bold"
+                        Grid.Column="0"
+                        Grid.Row="1"
+                        Text="{i18n:Translate Price}"
+                        VerticalOptions="Center">
+                    </Label>
+                    <Entry
+                        Grid.Column="1"
+                        Grid.Row="1"
+                        Keyboard="Numeric"
+                        Text="{Binding Price}"
+                        Placeholder="{i18n:Translate PreciPlaceholder}">
+                    </Entry>
+                </Grid>
+                <Editor
+                    FontAttributes="Bold"
+                    Placeholder="{i18n:Translate Remarks}"
+                    Text="{Binding Remarks}"
+                    VerticalOptions="FillAndExpand">
+                </Editor>
+                <ActivityIndicator
+                    IsRunning="{Binding IsRunning}"
+                    VerticalOptions="FillAndExpand">
+                </ActivityIndicator>
+                <Button
+                    BackgroundColor="Navy"
+                    BorderRadius="23"
+                    Command="{Binding SaveCommand}"
+                    HeightRequest="46"
+                    IsEnabled="{Binding IsEnabled}"
+                    Text="{i18n:Translate Save}"
+                    TextColor="White">
+                </Button>
+            </StackLayout>
+        </ScrollView>
     </ContentPage.Content>
 </ContentPage>
