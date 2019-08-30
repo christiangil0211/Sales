@@ -1,18 +1,20 @@
 ﻿namespace Sales.ViewModels
 {
     using GalaSoft.MvvmLight.Command;
-    using Services;
+    using Plugin.Media;
+    using Plugin.Media.Abstractions;
+    using Sales.Common.Models;
     using Sales.Helpers;
+    using Sales.Services;
+    using System;
+    using System.Linq;
     using System.Windows.Input;
     using Xamarin.Forms;
-    using Sales.Common.Models;
-    using Plugin.Media.Abstractions;
-    using System;
-    using Plugin.Media;
 
-    public class AddProductViewModel : BaseViewModel
+    public class EditProductViewModel : BaseViewModel
     {
         #region Attributes
+        private Product product;
         private MediaFile file;
         private ImageSource imageSource;
         private ApiService apiService;
@@ -21,12 +23,11 @@
         #endregion
 
         #region Properties
-        public string Description { get; set; }
-
-        public string Price { get; set; }
-
-        public string Remarks { get; set; }
-
+        public Product Product
+        {
+            get { return this.product; }
+            set { this.SetValue(ref this.product, value); }
+        }
         public bool IsRunning
         {
             get { return this.isRunning; }
@@ -45,12 +46,13 @@
         }
         #endregion
 
-        #region Constructor 
-        public AddProductViewModel()
+        #region Constructor
+        public EditProductViewModel(Product product)
         {
             this.apiService = new ApiService();
             this.IsEnabled = true;
-            this.ImageSource = "SinImagen";
+            this.ImageSource = product.ImageFullPath;
+            this.product = product;
         }
         #endregion
 
@@ -68,6 +70,14 @@
             get
             {
                 return new RelayCommand(Save);
+            }
+        }
+
+        public ICommand DeleteCommand
+        {
+            get
+            {
+                return new RelayCommand(Delete);
             }
         }
 
@@ -117,7 +127,7 @@
 
         private async void Save()
         {
-            if (string.IsNullOrEmpty(this.Description))
+            if (string.IsNullOrEmpty(this.Product.Description))
             {
                 await Application.Current.MainPage.DisplayAlert(
                     Lenguages.Error,
@@ -126,17 +136,7 @@
                 return;
             }
 
-            if (string.IsNullOrEmpty(this.Price))
-            {
-                await Application.Current.MainPage.DisplayAlert(
-                    Lenguages.Error,
-                    Lenguages.PriceError,
-                    Lenguages.Accept);
-                return;
-            }
-
-            var price = decimal.Parse(this.Price);
-            if (price < 0)
+            if (this.Product.Price < 0)
             {
                 await Application.Current.MainPage.DisplayAlert(
                     Lenguages.Error,
@@ -167,21 +167,16 @@
             if (this.file != null)
             {
                 imageArray = FilesHelper.ReadFully(this.file.GetStream());
+                this.Product.ImageArray = imageArray;
             }
 
-            var product = new Product
-            {
-                Description = this.Description,
-                Price = price,
-                Remarks = this.Remarks,
-                ImageArray = imageArray,
-            };
-            var response = await this.apiService.Post
+            var response = await this.apiService.Put
                (
                    "https://salesapis.azurewebsites.net",
                    "/api",
                    "/Products",
-                    product
+                    product,
+                    this.product.ProductId
                );
             if (!response.IsSuccess)
             {
@@ -197,14 +192,86 @@
             }
             var newProduct = (Product)response.Result;
             var productsViewModel = ProductsViewModel.GetInstance();
+            var oldProduct = productsViewModel.MyProducts.Where(p => p.ProductId == this.Product.ProductId).FirstOrDefault();
+
+            if (oldProduct != null)
+            {
+                productsViewModel.MyProducts.Remove(oldProduct);
+            }
+
             productsViewModel.MyProducts.Add(newProduct);
             productsViewModel.RefreshList();
+
+
             this.IsRunning = false;
             this.IsEnabled = true;
             await Application.Current.MainPage.Navigation.PopAsync();
 
-        } 
-        #endregion
+        }
 
+        private async void Delete()
+        {
+            var answer = await Application.Current.MainPage.DisplayAlert(
+                Lenguages.Confirm,
+                Lenguages.DeleteConfirmation,
+                Lenguages.Yes,
+                Lenguages.No
+                );
+            if (!answer)
+            {
+                return;
+            }
+            this.IsRunning = true;
+            this.IsEnabled = false;
+
+            var connection = await this.apiService.CheckConnection();
+
+            if (!connection.IsSuccess)
+            {
+                this.IsRunning = false;
+                this.IsEnabled = true;
+                await Application.Current.MainPage.DisplayAlert
+                    (
+                        Lenguages.Error,
+                        connection.Message,
+                        Lenguages.Accept
+                    );
+                return;
+            }
+            var response = await this.apiService.Delete
+               (
+                   "https://salesapis.azurewebsites.net",
+                   "/api",
+                   "/Products",
+                    this.Product.ProductId
+               );
+            if (!response.IsSuccess)
+            {
+                this.IsRunning = false;
+                this.IsEnabled = true;
+
+                await Application.Current.MainPage.DisplayAlert
+                    (
+                        Lenguages.Error,
+                        response.Message,
+                        Lenguages.Accept
+                    );
+                return;
+            }
+
+            var productsViewModel = ProductsViewModel.GetInstance();
+            var deletedProduct = productsViewModel.MyProducts.Where(p => p.ProductId == this.Product.ProductId).FirstOrDefault();
+
+            if (deletedProduct != null)
+            {
+                productsViewModel.MyProducts.Remove(deletedProduct);
+            }
+            productsViewModel.RefreshList();
+            this.IsRunning = false;
+            this.IsEnabled = true;
+
+            await Application.Current.MainPage.Navigation.PopAsync();
+        }
+        #endregion
     }
 }

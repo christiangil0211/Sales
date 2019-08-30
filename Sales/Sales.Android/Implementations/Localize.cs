@@ -18,7 +18,7 @@ namespace Sales.Droid.Implementations
             {
                 ci = new System.Globalization.CultureInfo(netLanguage);
             }
-            catch (CultureNotFoundException e1)
+            catch (CultureNotFoundException )
             {
 
                 try
@@ -26,7 +26,7 @@ namespace Sales.Droid.Implementations
                     var fallback = ToDonetFallbackLanguage(new PlatformCulture(netLanguage));
                     ci = new System.Globalization.CultureInfo(fallback);
                 }
-                catch (CultureNotFoundException e2)
+                catch (CultureNotFoundException )
                 {
                     ci = new System.Globalization.CultureInfo("en");
                 }

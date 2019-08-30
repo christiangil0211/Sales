@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Linq;
     using System.Windows.Input;
     using GalaSoft.MvvmLight.Command;
     using Sales.Common.Models;
@@ -13,13 +14,16 @@
     public class ProductsViewModel : BaseViewModel
     {
         #region Attributes
+        private string filter;
         private bool isRefreshing;
         private ApiService apiService;
-        private ObservableCollection<Product> products;
+        private ObservableCollection<ProductItemViewModel> products;
         #endregion
 
         #region Properties
-        public ObservableCollection<Product> Products
+
+        public List<Product> MyProducts { get; set; }
+        public ObservableCollection<ProductItemViewModel> Products
         {
             get { return this.products; }
             set { this.SetValue(ref this.products, value); }
@@ -28,6 +32,14 @@
         {
             get { return this.isRefreshing; }
             set { this.SetValue(ref this.isRefreshing, value); }
+        }
+        public string Filter
+        {
+            get { return this.filter; }
+            set {
+                    this.filter = value;
+                this.RefreshList();
+                }
         }
         #endregion
 
@@ -88,9 +100,43 @@
                     );
                 return;
             }
-            var list = (List<Product>)response.Result;
-            this.Products = new ObservableCollection<Product>(list);
+            this.MyProducts = (List<Product>)response.Result;
+            this.RefreshList();
             this.IsRefreshing = false;
+        }
+        public void RefreshList()
+        {
+            if (string.IsNullOrEmpty(this.Filter))
+            {
+                var myListProductItemViewModel = MyProducts.Select(p => new ProductItemViewModel
+                {
+                    Description = p.Description,
+                    ImageArray = p.ImageArray,
+                    ImagePath = p.ImagePath,
+                    IsAvailable = p.IsAvailable,
+                    Price = p.Price,
+                    ProductId = p.ProductId,
+                    PublishOn = p.PublishOn,
+                    Remarks = p.Remarks,
+                });
+                this.Products = new ObservableCollection<ProductItemViewModel>(myListProductItemViewModel.OrderBy(p => p.Description));
+            }
+            else
+            {
+                var myListProductItemViewModel = MyProducts.Select(p => new ProductItemViewModel
+                {
+                    Description = p.Description,
+                    ImageArray = p.ImageArray,
+                    ImagePath = p.ImagePath,
+                    IsAvailable = p.IsAvailable,
+                    Price = p.Price,
+                    ProductId = p.ProductId,
+                    PublishOn = p.PublishOn,
+                    Remarks = p.Remarks,
+                }).Where(p => p.Description.ToLower().Contains(this.Filter.ToLower())).ToList();
+
+                this.Products = new ObservableCollection<ProductItemViewModel>(myListProductItemViewModel.OrderBy(p => p.Description));
+            }
         }
         #endregion
 
@@ -101,7 +147,17 @@
             {
                 return new RelayCommand(LoadProducts);
             }
-        } 
+        }
+
+        public ICommand SearchCommand
+        {
+            get
+            {
+                return new RelayCommand(RefreshList);
+            }
+        }
         #endregion
     }
 }
+
+
