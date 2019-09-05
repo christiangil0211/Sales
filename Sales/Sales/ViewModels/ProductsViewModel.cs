@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using System.Threading.Tasks;
     using System.Windows.Input;
     using GalaSoft.MvvmLight.Command;
     using Sales.Common.Models;
@@ -17,6 +18,7 @@
         private string filter;
         private bool isRefreshing;
         private ApiService apiService;
+        private DataService dataService;
         private ObservableCollection<ProductItemViewModel> products;
         #endregion
 
@@ -48,6 +50,7 @@
         {
             instance = this;
             apiService = new ApiService();
+            dataService = new DataService();
             this.LoadProducts();
         }
         #endregion
@@ -71,39 +74,64 @@
         private async void LoadProducts()
         {
             var connection = await this.apiService.CheckConnection();
-            if (!connection.IsSuccess)
+            if (connection.IsSuccess)
+            {
+                var answer = await this.LoadProductsFromAPI();
+                if (answer)
+                {
+                    this.SaveProductsToDb();
+
+                }
+            }
+            else
+            {
+                await this.LoadProductsFromDB();
+            }
+
+            if (this.MyProducts == null || this.MyProducts.Count == 0)
             {
                 this.IsRefreshing = false;
                 await Application.Current.MainPage.DisplayAlert
                     (
                         Lenguages.Error,
-                        connection.Message,
+                        Lenguages.NoProductsMessage,
                         Lenguages.Accept
                     );
                 return;
             }
-            this.IsRefreshing = true;
+        
+            this.RefreshList();
+            this.IsRefreshing = false;
+        }
+        private async Task LoadProductsFromDB()
+        {
+            this.MyProducts = await this.dataService.GetAllProducts();
+        }
+
+        private async Task SaveProductsToDb()
+        {
+            await this.dataService.DeleteAllProducts();
+            await dataService.Insert(this.MyProducts);
+        }
+
+        private async Task<bool> LoadProductsFromAPI()
+        {
             var response = await this.apiService.GetList<Product>
                 (
                     "https://salesapis.azurewebsites.net",
                     "/api",
-                    "/Products"
+                    "/Products",
+                    Settings.TokenType,
+                    Settings.AccessToken
                 );
             if (!response.IsSuccess)
             {
-                this.IsRefreshing = false;
-                await Application.Current.MainPage.DisplayAlert
-                    (
-                        Lenguages.Error,
-                        response.Message,
-                        Lenguages.Accept
-                    );
-                return;
+                return false;
             }
             this.MyProducts = (List<Product>)response.Result;
-            this.RefreshList();
-            this.IsRefreshing = false;
+            return true;
         }
+
         public void RefreshList()
         {
             if (string.IsNullOrEmpty(this.Filter))

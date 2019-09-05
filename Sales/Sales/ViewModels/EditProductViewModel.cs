@@ -176,7 +176,9 @@
                    "/api",
                    "/Products",
                     product,
-                    this.product.ProductId
+                    this.product.ProductId,
+                    Settings.TokenType,
+                    Settings.AccessToken
                );
             if (!response.IsSuccess)
             {
@@ -205,7 +207,7 @@
 
             this.IsRunning = false;
             this.IsEnabled = true;
-            await Application.Current.MainPage.Navigation.PopAsync();
+            await App.Navigator.PopAsync();
 
         }
 
@@ -243,7 +245,9 @@
                    "https://salesapis.azurewebsites.net",
                    "/api",
                    "/Products",
-                    this.Product.ProductId
+                    this.Product.ProductId,
+                    Settings.TokenType,
+                    Settings.AccessToken
                );
             if (!response.IsSuccess)
             {
@@ -270,7 +274,7 @@
             this.IsRunning = false;
             this.IsEnabled = true;
 
-            await Application.Current.MainPage.Navigation.PopAsync();
+            await App.Navigator.PopAsync();
         }
         #endregion
     }

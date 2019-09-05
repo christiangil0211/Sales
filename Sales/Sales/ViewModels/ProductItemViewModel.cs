@@ -33,7 +33,7 @@
         private async void EditProduct()
         {
             MainViewModel.GetInstance().EditProduct = new EditProductViewModel(this);
-            await Application.Current.MainPage.Navigation.PushAsync(new EditProductPage());
+            await App.Navigator.PushAsync(new EditProductPage());
         }
         #endregion
 
@@ -75,7 +75,9 @@
                    "https://salesapis.azurewebsites.net",
                    "/api",
                    "/Products",
-                    ProductId
+                    ProductId,
+                    Settings.TokenType,
+                    Settings.AccessToken
                );
             if (!response.IsSuccess)
             {

@@ -4,6 +4,7 @@
     using Sales.Helpers;
     using Sales.Services;
     using Sales.Views;
+    using System;
     using System.Windows.Input;
     using Xamarin.Forms;
 
@@ -48,6 +49,9 @@
         #region Constructor
         public LoginViewModel()
         {
+            this.Email = "christiangildesarrollo@outlook.com";
+            this.Password = "America1927?";
+            this.IsRemembered = true;
             apiService = new ApiService();
             this.IsEnabled = true;
         }
@@ -60,6 +64,19 @@
             {
                 return new RelayCommand(Login);
             }
+        }
+        public ICommand RegisterCommand
+        {
+            get
+            {
+                return new RelayCommand(Register);
+            }
+        }
+
+        private async void Register()
+        {
+            MainViewModel.GetInstance().Register = new RegisterViewModel();
+             await Application.Current.MainPage.Navigation.PushAsync(new RegisterPage());
         }
         #endregion
 
@@ -113,8 +130,12 @@
                 return;
             }
 
+            Settings.TokenType = token.TokenType;
+            Settings.AccessToken = token.AccessToken;
+            Settings.IsRemembered = this.IsRemembered;
+
             MainViewModel.GetInstance().Products = new ProductsViewModel();
-            Application.Current.MainPage = new ProductsPage();
+            Application.Current.MainPage = new MasterPage();
             this.IsRunning = false;
             this.IsEnabled = true;
         }
