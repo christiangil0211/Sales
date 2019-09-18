@@ -1,6 +1,7 @@
 ﻿namespace Sales.API.Controllers
 {
     using Helpers;
+    using Newtonsoft.Json.Linq;
     using Sales.Common.Models;
     using System;
     using System.IO;
@@ -33,6 +34,37 @@
 
             return BadRequest(answer.Message);
             
+        }
+
+        [HttpPost]
+        [Authorize]
+        [Route("GetUser")]
+        public IHttpActionResult GetUser(JObject form)
+        {
+            try
+            {
+                var email = string.Empty;
+                dynamic jsonObject = form;
+
+                try
+                {
+                    email = jsonObject.Email.value;
+                }
+                catch 
+                {
+
+                    return BadRequest("Incorrect call.");
+                }
+
+                var user = UsersHelper.GetUserASP(email);
+                return Ok(user);
+
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
         }
 
     }

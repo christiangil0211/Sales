@@ -7,6 +7,7 @@
     using Xamarin.Forms;
     using System;
     using Sales.Helpers;
+    using Sales.Common.Models;
 
     public class MainViewModel
     {
@@ -17,6 +18,20 @@
         public AddProductViewModel AddProduct { get; set; }
         public LoginViewModel Login { get; set; }
         public RegisterViewModel Register { get; set; }
+        public MyUserASP UserASP { get; set; }
+        public string UserFullName
+        {
+            get
+            {
+                if (this.UserASP != null && this.UserASP.Claims != null && this.UserASP.Claims.Count > 1)
+                {
+                    return $"{this.UserASP.Claims[0].ClaimValue} {this.UserASP.Claims[1].ClaimValue}";
+                }
+
+                return null;
+            }
+
+        }
         #endregion
 
         #region Constructor
